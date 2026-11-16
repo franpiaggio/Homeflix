@@ -1,83 +1,89 @@
+<div align="center">
+
 # Homeflix
 
-Servidor personal para pedir películas por mensaje y verlas después desde Android, iOS o un navegador.
+**A self-hosted movie library, controlled by messages.**
 
-**Estado:** prototipo. El circuito de descarga y reproducción todavía no está integrado.
+*Work in progress*
 
-## Cómo debería funcionar
+</div>
+
+## Overview
+
+Request a movie from WhatsApp or Telegram, then watch it later from your phone, TV, projector, or browser. Homeflix connects movie discovery, downloads, subtitles, and playback in one private system.
+
+## How it works
 
 ```text
-WhatsApp o Telegram
-        ↓
-Buscar película y comprobar calidad
-        ↓
-Descargar y conseguir subtítulos
-        ↓
-Agregar a Jellyfin
-        ↓
-Ver desde Android, iOS, TV o navegador
+WhatsApp / Telegram
+         ↓
+    Movie discovery
+         ↓
+ Download + subtitles
+         ↓
+       Jellyfin
+         ↓
+ Android · iOS · TV · Web
 ```
 
-El objetivo es pedir una película fuera de casa y encontrarla lista para reproducir al volver, sin mover archivos manualmente.
+## Features
 
-## Reglas
+- **Simple requests.** Send a movie title and receive status updates.
+- **Quality preferences.** Prefer 1080p, accept 720p, and ask before choosing lower quality.
+- **Language preferences.** English audio with Spanish subtitles.
+- **Clear feedback.** Report unavailable titles, quality limitations, and missing subtitles.
+- **Private streaming.** Browse and play your library from supported devices.
+- **Modular setup.** Messaging, discovery, downloads, and playback are independent components.
 
-- Audio en inglés y subtítulos en español.
-- Preferir 1080p. Aceptar 720p. Consultar antes de descargar calidad inferior.
-- Avisar si no se encuentra, si falta el idioma o si no hay subtítulos.
-- Confirmar que está lista solo cuando el archivo esté importado y verificado.
-- Acceso restringido a dos usuarios. Fuentes de descarga autorizadas.
+## Stack
 
-## Tecnologías
-
-| Función | Herramienta |
+| Layer | Tools |
 | --- | --- |
-| Mensajes | WhatsApp (Baileys, no oficial) o Telegram |
-| Bot | Node.js; TypeScript previsto |
-| Catálogo y búsqueda | TMDB, Radarr, Prowlarr |
-| Descarga | qBittorrent |
-| Subtítulos | Bazarr |
-| Reproducción | Jellyfin |
-| Acceso privado | Tailscale |
-| Despliegue | Docker Compose en Coolify |
+| Messaging | WhatsApp / Telegram |
+| Movie discovery | TMDB, Radarr, Prowlarr |
+| Downloads | qBittorrent |
+| Subtitles | Bazarr |
+| Playback | Jellyfin |
+| Private access | Tailscale |
+| Hosting | Docker Compose, Coolify |
 
-Todo corre en el VPS existente. No se prevén servicios pagos, salvo almacenamiento adicional si hace falta.
+Homeflix runs on a personal VPS. The software stack is free; additional storage is optional.
 
-## Qué funciona hoy
+## Repository
 
-- Configuración inicial de Docker Compose para cinco servicios multimedia. **No probada en Coolify.**
-- Prototipo de bot de Telegram: recibe un título de usuarios permitidos y responde. **No busca ni descarga.**
-- Reglas de calidad y pruebas unitarias.
+```text
+apps/bot/         Messaging prototype and quality rules
+infra/            Docker Compose
+docs/PROJECT.md   Architecture and requirements
+docs/DECISIONS.md Technical decisions
+docs/ROADMAP.md   Development plan
+AGENTS.md         Instructions for coding agents
+```
 
-**Pendiente:** integrar búsqueda, descargas, subtítulos, avisos, WhatsApp y reproducción real en distintos dispositivos.
+## Development
 
-## Probar el prototipo
-
-Requiere Node.js 20 o superior.
+Run the bot tests with Node.js 20+:
 
 ```bash
 cd apps/bot
 npm test
-TELEGRAM_BOT_TOKEN='TOKEN' ALLOWED_TELEGRAM_IDS='ID' npm start
 ```
 
-El token se obtiene con BotFather. El ID es el identificador numérico de tu cuenta de Telegram. El bot solo confirma la recepción de pedidos.
+Run the Telegram prototype:
 
-Para validar la configuración Docker:
+```bash
+TELEGRAM_BOT_TOKEN='TOKEN' ALLOWED_TELEGRAM_IDS='USER_ID' npm start
+```
+
+Validate the Docker Compose configuration:
 
 ```bash
 cp .env.example .env
-# Editar MEDIA_ROOT, PUID, PGID y TZ
 docker compose --env-file .env -f infra/compose.yml config
 ```
 
-El Compose no publica puertos de administración. Hace falta configurar acceso privado antes de usar los paneles.
+Configure your own credentials and private network access before deployment. Use only media sources you are authorized to access.
 
-## Documentación
+## Documentation
 
-- [Arquitectura y requisitos](docs/PROJECT.md)
-- [Decisiones técnicas](docs/DECISIONS.md)
-- [Estado y tareas pendientes](docs/ROADMAP.md)
-- [Instrucciones para agentes](AGENTS.md)
-
-Las interfaces deben mantenerse simples. La prioridad es que el circuito completo funcione.
+[Architecture](docs/PROJECT.md) · [Technical decisions](docs/DECISIONS.md) · [Development plan](docs/ROADMAP.md) · [Agent instructions](AGENTS.md)
