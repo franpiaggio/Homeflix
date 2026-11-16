@@ -1,31 +1,32 @@
-# Estado y próximos pasos
+# Development roadmap
 
-## Hecho
+## Current foundation
 
-- Estructura inicial del repositorio y documentación.
-- Docker Compose preliminar para Jellyfin, Radarr, Prowlarr, qBittorrent y Bazarr.
-- Bot de Telegram básico con lista de usuarios permitidos.
-- Reglas de calidad y pruebas unitarias.
+- Repository documentation and project structure.
+- Initial Docker Compose configuration for Jellyfin, Radarr, Prowlarr, qBittorrent, and Bazarr.
+- Telegram request prototype with user allowlist.
+- Release quality rules and unit tests.
 
-## Pendiente
+## Next milestones
 
-1. Validar Docker Compose y recursos del VPS en Coolify.
-2. Configurar fuentes autorizadas y conectar Radarr, Prowlarr y qBittorrent.
-3. Integrar Bazarr y comprobar subtítulos en español.
-4. Conectar el bot con las búsquedas, confirmaciones y estados de descarga.
-5. Incorporar WhatsApp mediante Baileys y mantener Telegram como alternativa.
-6. Configurar Tailscale y probar Jellyfin desde Android, iOS y navegador.
-7. Probar reproducción directa, formatos incompatibles y alternativas.
-8. Verificar límites de disco, errores, reintentos y pedidos duplicados.
+1. Validate Compose deployment and resource limits in Coolify.
+2. Connect authorized indexers, Radarr, Prowlarr, and qBittorrent.
+3. Connect Bazarr and verify Spanish subtitle handling.
+4. Add request tracking, confirmation, notifications, and retries.
+5. Implement the WhatsApp adapter and preserve Telegram fallback.
+6. Configure private access and test Jellyfin on Android, iOS, and web.
+7. Verify codec compatibility, Direct Play, and playback fallbacks.
+8. Test storage limits, error recovery, and duplicate requests.
 
-## Pruebas necesarias para terminar
+## Release verification
 
-- Solo los usuarios autorizados pueden pedir películas.
-- Búsqueda y calidad se informan correctamente.
-- El sistema no marca una película como lista antes de comprobar el archivo y los subtítulos.
-- La película aparece en Jellyfin sin mover archivos a mano.
-- Se reproduce en dispositivos compatibles.
-- Los demás servicios del VPS siguen aislados.
-- No hay credenciales en el repositorio ni paneles administrativos expuestos.
+- Only authorized users can submit requests.
+- Movie identification, quality, and language checks are accurate.
+- Readiness requires verified library import and subtitle status.
+- No manual file transfer is needed.
+- Playback works on supported clients.
+- Secrets stay out of the repository.
+- Admin services are not publicly exposed.
+- Other VPS applications remain unaffected except for shared resource usage.
 
-**Estado actual:** prototipo. No hay prueba completa de extremo a extremo.
+**Current status:** prototype. End-to-end deployment and playback have not been validated.
