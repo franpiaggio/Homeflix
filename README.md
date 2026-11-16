@@ -1,88 +1,83 @@
-<div align="center">
+# Homeflix
 
-# 🎞️ Homeflix
+Servidor personal para pedir películas por mensaje y verlas después desde Android, iOS o un navegador.
 
-**Your movies. Your server. Your screen.**
+**Estado:** prototipo. El circuito de descarga y reproducción todavía no está integrado.
 
-A self-hosted movie-request and playback project for a private home library.
-
-**Docker + Coolify** · **No paid software** · **Work in progress**
-
-[Quick start](#quick-start) · [Status](#status) · [Architecture](docs/PROJECT.md) · [Roadmap](docs/ROADMAP.md) · [Agent instructions](AGENTS.md)
-
-</div>
-
----
-
-> [!IMPORTANT]
-> **Early prototype.** The media stack is a deployment draft and the Telegram bot currently acknowledges requests only. Automated searching, downloads, subtitles and WhatsApp are not connected or validated.
-
-## Intended flow
+## Cómo debería funcionar
 
 ```text
-WhatsApp / Telegram
+WhatsApp o Telegram
         ↓
-Movie request bot
+Buscar película y comprobar calidad
         ↓
-Radarr + Prowlarr (authorized sources)
+Descargar y conseguir subtítulos
         ↓
-qBittorrent → Bazarr (Spanish subtitles)
+Agregar a Jellyfin
         ↓
-Jellyfin → Android / home projector
+Ver desde Android, iOS, TV o navegador
 ```
 
-**Preferences:** English audio; Spanish subtitles; prefer 1080p; accept 720p; ask before lower quality. Notify on unavailable titles, low quality, missing subtitles and completion. These are goals, not implemented features.
+El objetivo es pedir una película fuera de casa y encontrarla lista para reproducir al volver, sin mover archivos manualmente.
 
-## Status
+## Reglas
 
-| Component | State |
-|---|---|
-| Documentation and agent handoff | Ready |
-| Docker Compose | Draft; not deployment-tested |
-| Telegram bot | Prototype; requests only |
-| WhatsApp (Baileys) | Planned; unofficial, potentially unstable |
-| Search/download/subtitles | Not connected |
-| Android projector / Tailscale | To validate |
+- Audio en inglés y subtítulos en español.
+- Preferir 1080p. Aceptar 720p. Consultar antes de descargar calidad inferior.
+- Avisar si no se encuentra, si falta el idioma o si no hay subtítulos.
+- Confirmar que está lista solo cuando el archivo esté importado y verificado.
+- Acceso restringido a dos usuarios. Fuentes de descarga autorizadas.
 
-## Quick start
+## Tecnologías
 
-**Run bot tests** (Node.js 20+):
+| Función | Herramienta |
+| --- | --- |
+| Mensajes | WhatsApp (Baileys, no oficial) o Telegram |
+| Bot | Node.js; TypeScript previsto |
+| Catálogo y búsqueda | TMDB, Radarr, Prowlarr |
+| Descarga | qBittorrent |
+| Subtítulos | Bazarr |
+| Reproducción | Jellyfin |
+| Acceso privado | Tailscale |
+| Despliegue | Docker Compose en Coolify |
+
+Todo corre en el VPS existente. No se prevén servicios pagos, salvo almacenamiento adicional si hace falta.
+
+## Qué funciona hoy
+
+- Configuración inicial de Docker Compose para cinco servicios multimedia. **No probada en Coolify.**
+- Prototipo de bot de Telegram: recibe un título de usuarios permitidos y responde. **No busca ni descarga.**
+- Reglas de calidad y pruebas unitarias.
+
+**Pendiente:** integrar búsqueda, descargas, subtítulos, avisos, WhatsApp y reproducción real en distintos dispositivos.
+
+## Probar el prototipo
+
+Requiere Node.js 20 o superior.
 
 ```bash
 cd apps/bot
 npm test
+TELEGRAM_BOT_TOKEN='TOKEN' ALLOWED_TELEGRAM_IDS='ID' npm start
 ```
 
-**Try the Telegram prototype** (obtain token from BotFather and your numeric Telegram user ID):
+El token se obtiene con BotFather. El ID es el identificador numérico de tu cuenta de Telegram. El bot solo confirma la recepción de pedidos.
 
-```bash
-TELEGRAM_BOT_TOKEN='YOUR_TOKEN' ALLOWED_TELEGRAM_IDS='YOUR_ID' node src/index.mjs
-```
-
-The bot replies that the request was received; **it does not download anything**.
-
-**Validate the Compose draft** (Docker required):
+Para validar la configuración Docker:
 
 ```bash
 cp .env.example .env
-# Set MEDIA_ROOT, PUID, PGID, TZ
+# Editar MEDIA_ROOT, PUID, PGID y TZ
 docker compose --env-file .env -f infra/compose.yml config
 ```
 
-The stack publishes **no admin ports**. Configure private access (for example, Tailscale) before expecting Jellyfin to be reachable. Test Direct Play with a video you are authorized to use. Do not expose torrent or admin panels publicly.
+El Compose no publica puertos de administración. Hace falta configurar acceso privado antes de usar los paneles.
 
-## Design constraints
+## Documentación
 
-- Existing VPS with Coolify, isolated Docker stack and resource limits.
-- No additional subscriptions; optional paid storage only if necessary.
-- Minimal interfaces; visual redesign deferred.
-- WhatsApp adapter must be replaceable with Telegram.
-- Never commit credentials or sessions; use authorized media sources.
-- Real end-to-end playback, subtitles and server capacity still require testing.
+- [Arquitectura y requisitos](docs/PROJECT.md)
+- [Decisiones técnicas](docs/DECISIONS.md)
+- [Estado y tareas pendientes](docs/ROADMAP.md)
+- [Instrucciones para agentes](AGENTS.md)
 
-## For future agents
-
-Read [AGENTS.md](AGENTS.md), [project specification](docs/PROJECT.md), [decisions](docs/DECISIONS.md), and [roadmap](docs/ROADMAP.md) before making changes. Keep roadmap and implementation status truthful.
-
----
-Homeflix is a personal infrastructure experiment. Respect licensing and source terms.
+Las interfaces deben mantenerse simples. La prioridad es que el circuito completo funcione.
