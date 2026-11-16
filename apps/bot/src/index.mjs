@@ -1,9 +1,15 @@
-import {isAllowed,parseRequest} from './core.mjs';
-const token=process.env.TELEGRAM_BOT_TOKEN;
-const allowed=(process.env.ALLOWED_TELEGRAM_IDS||'').split(',').map(x=>x.trim()).filter(Boolean);
-if (!token || !allowed.length) {console.error('Set TELEGRAM_BOT_TOKEN and ALLOWED_TELEGRAM_IDS');process.exit(1);}
-const endpoint=`https://api.telegram.org/bot${token}`;
-async function api(method,data){const response=await fetch(`${endpoint}/${method}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data)});if(!response.ok)throw new Error(`Telegram HTTP ${response.status}`);const json=await response.json();if(!json.ok)throw new Error('Telegram API error');return json.result;}
-let offset=0;
-console.log('Homeflix bot started (prototype: search not connected)');
-while(true){try{const updates=await api('getUpdates',{offset,timeout:25,allowed_updates:['message']});for(const update of updates){offset=update.update_id+1;const msg=update.message;if(!msg?.text||!isAllowed(msg.from?.id,allowed))continue;const req=parseRequest(msg.text);const reply=req.kind==='movie'?`🎬 ${req.query}\nSolicitud recibida. La búsqueda todavía no está conectada; no se inició ninguna descarga.`:req.kind==='help'?'Enviame el nombre de una película.':'Nombre demasiado largo.';await api('sendMessage',{chat_id:msg.chat.id,text:reply});}}catch(err){console.error(err.message);await new Promise(resolve=>setTimeout(resolve,3000));}}
+import {readConfig} from './config.mjs';
+import {MovieCatalog,Radarr,requestJson} from './services.mjs';
+import {Store} from './store.mjs';
+import {Conversation} from './conversation.mjs';
+const config=readConfig();
+if(config.missing.length||!config.allowed.length){console.error('Missing: '+[...config.missing,...(!config.allowed.length?['ALLOWED_TELEGRAM_IDS']:[])].join(', '));process.exit(1)}
+const store=await new Store(config.statePath).load();
+const bot=new Conversation({catalog:new MovieCatalog(config.tmdbKey),radarr:new Radarr(config.radarrUrl,config.radarrKey),store,config});
+const base='https://api.telegram.org/bot'+config.telegramToken;
+async function telegram(method,data){const r=await requestJson(base+'/'+method,{method:'POST',body:data,timeout:35000,headers:{'Content-Type':'application/json'}});if(!r.ok)throw new Error(r.description||'Telegram API error');return r.result}
+let offset=0;console.log('Homeflix Telegram adapter started');
+while(true){try{const updates=await telegram('getUpdates',{offset,timeout:25,allowed_updates:['message']});for(const update of updates){offset=update.update_id+1;const msg=update.message;if(!msg?.text||!config.allowed.includes(String(msg.from?.id)))continue;
+ let reply;try{reply=await bot.handle(String(msg.from.id),msg.text)}catch(e){console.error('Request failed',e);reply='Could not complete the request. Please try again later.'}
+ await telegram('sendMessage',{chat_id:msg.chat.id,text:reply});}}
+ catch(e){console.error('Polling error',e);await new Promise(r=>setTimeout(r,3000))}}
