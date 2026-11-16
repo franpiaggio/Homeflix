@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${CONFIG_ROOT:-/srv/homeflix/config}/jellyfin:/config
-      - ${LIBRARY_ROOT:-/srv/homeflix/library}:/media:ro
+      - ${DATA_ROOT:-/srv/homeflix/data}/library:/media:ro
     networks: [media]
     mem_limit: 1g
     cpus: '1.5'
@@ -15,8 +15,7 @@ services:
     environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}'}
     volumes:
       - ${CONFIG_ROOT:-/srv/homeflix/config}/radarr:/config
-      - ${LIBRARY_ROOT:-/srv/homeflix/library}:/data/library
-      - ${DOWNLOADS_ROOT:-/srv/homeflix/downloads}:/data/downloads
+      - ${DATA_ROOT:-/srv/homeflix/data}:/data
     networks: [media]
     mem_limit: 512m
     cpus: '0.75'
@@ -35,7 +34,7 @@ services:
     environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}', WEBUI_PORT: '8080'}
     volumes:
       - ${CONFIG_ROOT:-/srv/homeflix/config}/qbittorrent:/config
-      - ${DOWNLOADS_ROOT:-/srv/homeflix/downloads}:/data/downloads
+      - ${DATA_ROOT:-/srv/homeflix/data}:/data
     networks: [media]
     mem_limit: 1g
     cpus: '1.0'
@@ -45,10 +44,31 @@ services:
     environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}'}
     volumes:
       - ${CONFIG_ROOT:-/srv/homeflix/config}/bazarr:/config
-      - ${LIBRARY_ROOT:-/srv/homeflix/library}:/data/library
+      - ${DATA_ROOT:-/srv/homeflix/data}/library:/data/library
     networks: [media]
     mem_limit: 512m
     cpus: '0.75'
+  bot:
+    image: node:22-alpine
+    profiles: [bot]
+    restart: unless-stopped
+    user: '${PUID}:${PGID}'
+    working_dir: /app
+    command: ['node', 'src/index.mjs']
+    environment:
+      TELEGRAM_BOT_TOKEN: '${TELEGRAM_BOT_TOKEN:-}'
+      ALLOWED_TELEGRAM_IDS: '${ALLOWED_TELEGRAM_IDS:-}'
+      TMDB_API_KEY: '${TMDB_API_KEY:-}'
+      RADARR_URL: http://radarr:7878
+      RADARR_API_KEY: '${RADARR_API_KEY:-}'
+      RADARR_ROOT_FOLDER: /data/library/movies
+      STATE_FILE: /state/state.json
+    volumes:
+      - ../apps/bot:/app:ro
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/bot:/state
+    networks: [media]
+    mem_limit: 256m
+    cpus: '0.5'
 networks:
   media:
     driver: bridge

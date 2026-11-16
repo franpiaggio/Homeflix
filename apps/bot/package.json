@@ -1,1 +1,15 @@
-{"name":"homeflix-bot","version":"0.1.0","private":true,"type":"module","scripts":{"test":"node --test test/*.test.mjs","start":"node src/index.mjs"},"engines":{"node":">=20"}}
+{
+  "name": "homeflix-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "start": "node src/index.mjs",
+    "demo": "node src/demo.mjs",
+    "doctor": "node src/doctor.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

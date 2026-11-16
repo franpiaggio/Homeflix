@@ -1,4 +1,3 @@
-import {releaseOptions} from './services.mjs';
 const menu=(items)=>items.map((x,i)=>`${i+1}. ${x}`).join('\n');
 export class Conversation {
  constructor({catalog,radarr,store,config}){Object.assign(this,{catalog,radarr,store,config})}
@@ -15,8 +14,9 @@ export class Conversation {
  const n=Number(input)-1;const movie=current.matches[n];if(!Number.isInteger(n)||!movie)return 'Choose a listed movie number.';
  const profiles=await this.radarr.profiles();if(!profiles.length)return 'No Radarr quality profiles configured.';
  const folders=await this.radarr.rootFolders();if(!folders.length)return 'No Radarr root folder configured.';
+ if(this.config.rootFolder&&!folders.some(folder=>folder.path===this.config.rootFolder))return 'The requested root folder is not configured in Radarr.';
  await this.store.set(user,{step:'quality',movie,profiles:profiles.map(p=>({id:p.id,name:p.name})),rootFolder:this.config.rootFolder||folders[0].path});
- return `${movie.title}: choose a quality profile.\n`+menu(profiles.map(p=>p.name))+'\nReply with a number.';
+ return `${movie.title}: choose a quality profile (not verified release availability).\n`+menu(profiles.map(p=>p.name))+'\nReply with a number.';
  }
  if(current.step==='quality'){
  const n=Number(input)-1;const profile=current.profiles[n];if(!Number.isInteger(n)||!profile)return 'Choose a listed quality profile number.';
@@ -33,6 +33,10 @@ export class Conversation {
  if(input.toLowerCase()!=='yes')return 'Reply YES or NO.';
  const {movie,profile,rootFolder,subtitle}=current;
  const result=await this.radarr.add(movie.id,{qualityProfileId:profile.id,rootFolder});
+ if(result.existing){
+ await this.store.set(user,{step:'done',movie,subtitle,radarrId:result.movie.id});
+ return result.movie.hasFile?`Already imported in Radarr: ${movie.title}. Jellyfin playback and subtitles are not yet verified.`:`Already monitored in Radarr: ${movie.title}. No duplicate search was started.`;
+ }
  await this.radarr.searchMovie(result.movie.id);
  await this.store.set(user,{step:'done',movie,subtitle,radarrId:result.movie.id});
  return `Queued: ${movie.title}. Download depends on configured authorized indexers and sources. Subtitle selection is saved as a request preference, not yet applied to Bazarr.`;

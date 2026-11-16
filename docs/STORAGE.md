@@ -1,43 +1,22 @@
 # Storage
 
-Homeflix uses three independent host paths, configured in `.env`:
+Use `CONFIG_ROOT` for application settings and `DATA_ROOT` for media data. Defaults are `/srv/homeflix/config` and `/srv/homeflix/data` on the Docker host.
 
-| Variable | Purpose |
-| --- | --- |
-| `CONFIG_ROOT` | Application settings and databases. Keep on reliable local storage. |
-| `DOWNLOADS_ROOT` | Incomplete and completed downloads. Prefer a local disk. |
-| `LIBRARY_ROOT` | Movies and subtitles served by Jellyfin. Can be local or a mounted external filesystem. |
+```text
+DATA_ROOT/
+  downloads/incomplete/
+  downloads/complete/
+  library/movies/
+```
 
-Default paths are under `/srv/homeflix`.
+Radarr and qBittorrent mount the same host root at `/data`. Radarr imports into `/data/library/movies`. Bazarr mounts its library at `/data/library`; Jellyfin reads the same library at `/media`. Downloads and library must actually be on the same filesystem for hardlinks; nested mounts can still prevent them. Verify permissions, free space and hardlink behavior on the host.
 
-## Local storage
+## Migrating the original prototype
 
-Use the default paths or point them to another mounted local disk.
+`DOWNLOADS_ROOT` and `LIBRARY_ROOT` are no longer used by Compose. Stop Homeflix services, back up configuration, and explicitly relocate existing data under the shared root before starting this layout. Update saved qBittorrent paths, Radarr root folders and Jellyfin libraries as necessary. Do not simply change `.env` on an existing deployment: that can expose an empty library. No existing host data is moved automatically.
 
 ## External storage
 
-Mount the remote filesystem **on the VPS host first** using the provider's supported method. Set `LIBRARY_ROOT` to that mounted directory. Containers use the same internal paths regardless of provider.
+For the first test use local storage. External filesystems must be mounted on the Docker host before containers start, and a missing mount must prevent startup. The current Compose file does not implement mount detection or a failure policy. Configure and test host-level mount dependencies before deploying on remote storage.
 
-Example:
-
-```env
-CONFIG_ROOT=/srv/homeflix/config
-DOWNLOADS_ROOT=/srv/homeflix/downloads
-LIBRARY_ROOT=/mnt/media-library
-```
-
-The mount must be available before containers start. Configure persistent mounts, permissions, backups, monitoring and a failure policy. A missing mount must not silently become an empty local directory: validate it before deployment.
-
-Keep downloads local unless the remote filesystem supports the random writes, locking and throughput required by qBittorrent. Importing across separate filesystems may copy rather than hardlink, increasing I/O and temporary disk use.
-
-Object storage (for example S3-compatible buckets) is **not** a direct POSIX filesystem. A separate gateway/mount layer may have compatibility and cost limitations. Do not assume Cloudflare R2 works as a drop-in library disk.
-
-## Validation
-
-- Verify read/write permissions for download and library services.
-- Verify Jellyfin can read imported files and subtitle sidecars.
-- Check free disk space, network transfer, and provider limits.
-- Test restart with remote storage temporarily unavailable.
-- Confirm no other Coolify app uses these paths.
-
-Storage paths are configurable now; external providers and failure handling are not yet end-to-end tested.
+Object storage is not a direct POSIX filesystem. Gateway compatibility and cost require separate investigation. Keep application configurations on reliable local storage. Separate download/library filesystems require copying rather than hardlinks and may temporarily double disk usage.

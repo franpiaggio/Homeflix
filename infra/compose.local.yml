@@ -1,0 +1,12 @@
+# Optional local administration. Bind only to loopback; use an SSH tunnel remotely.
+services:
+  jellyfin:
+    ports: ['127.0.0.1:8096:8096']
+  radarr:
+    ports: ['127.0.0.1:7878:7878']
+  prowlarr:
+    ports: ['127.0.0.1:9696:9696']
+  qbittorrent:
+    ports: ['127.0.0.1:8080:8080']
+  bazarr:
+    ports: ['127.0.0.1:6767:6767']
