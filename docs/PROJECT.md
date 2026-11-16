@@ -1,0 +1,5 @@
+# Homeflix
+Personal, closed media workflow for two users. Request a movie through a messaging bot; identify via TMDB; check authorized source availability; apply English-audio and 1080p-preferred/720p-minimum rules; download via qBittorrent managed by Radarr; find Spanish subtitles with Bazarr; play via Jellyfin on Android/projector. Notify unavailable/low quality/missing subtitles. Infrastructure: existing VPS with Coolify, isolated Docker Compose. Optional external storage only if needed. No paid APIs or subscriptions. Direct Play prioritized. Access to Jellyfin and administration over private network (Tailscale); verify projector compatibility. Source licensing and subtitle availability cannot be assumed.
+
+## Boundaries
+Bot never directly searches arbitrary torrent websites; Radarr/Prowlarr configured by operator for authorized sources. No AI dependency. Minimal interfaces only. WhatsApp Baileys is unofficial and may break or trigger account restrictions; adapter replaceable with Telegram. A dedicated WhatsApp number is recommended. Avoid exposing bot/admin endpoints.
