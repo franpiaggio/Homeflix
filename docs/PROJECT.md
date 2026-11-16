@@ -1,39 +1,43 @@
-# Proyecto
+# Homeflix architecture
 
-Homeflix permite pedir películas por mensaje y reproducirlas después desde dispositivos personales.
+Homeflix is a private, self-hosted movie request and streaming system for a household.
 
-## Flujo
+## User flow
 
-1. **Mensajes:** WhatsApp o Telegram recibe el título y responde con el estado.
-2. **Búsqueda:** TMDB identifica la película; Radarr y Prowlarr consultan fuentes configuradas y autorizadas.
-3. **Descarga:** qBittorrent descarga; Bazarr busca subtítulos en español; el sistema comprueba el archivo antes de marcarlo como listo.
-4. **Reproducción:** Jellyfin presenta la biblioteca en Android, iOS, Android TV, proyectores compatibles o navegador.
+Request a movie by message → find a matching release → download and prepare it → play it later from a supported device.
 
-Las capas deben poder reemplazarse sin rehacer las demás.
+## Layers
 
-## Reglas
+1. **Messaging:** WhatsApp and Telegram adapters, authorized users, requests, confirmations, and notifications.
+2. **Discovery:** TMDB for identification; Radarr and Prowlarr for configured, authorized sources and release selection.
+3. **Acquisition:** qBittorrent for downloads, Bazarr for Spanish subtitles, library import, and readiness checks.
+4. **Playback:** Jellyfin for Android, iOS, Android TV, compatible projectors, and browsers.
 
-- Preferir audio original en inglés.
-- Priorizar 1080p; aceptar 720p; consultar antes de descargar calidad inferior.
-- Avisar cuando no se encuentre el título o no se pueda verificar idioma, calidad o subtítulos.
-- No prometer subtítulos que todavía no se encontraron.
-- Evitar pedidos duplicados y permitir reintentos.
-- Estados: solicitado, buscando, pendiente de confirmación, descargando, preparando, listo y error.
-- El usuario no debe mover archivos manualmente.
+Each layer has a replaceable interface.
 
-## Infraestructura
+## Product rules
 
-- VPS existente con Coolify.
-- Un stack Docker Compose con red, volúmenes y límites de recursos propios.
-- Jellyfin con reproducción directa cuando el dispositivo soporte el formato.
-- Tailscale para acceso privado. Sin paneles administrativos públicos.
-- Almacenamiento local al principio; evaluar uno externo según espacio y costo.
-- Sin APIs ni suscripciones pagas.
+- Prefer English audio.
+- Prefer 1080p, accept 720p, request confirmation below 720p.
+- Report missing titles, low quality, unavailable English audio, and missing subtitles.
+- Track requests through discovery, download, preparation, and readiness.
+- Verify file availability and subtitle status before sending a ready notification.
+- Handle duplicate requests, retries, and failures.
+- No manual file transfers between services.
 
-## Restricciones
+## Infrastructure
 
-WhatsApp mediante Baileys no es oficial: puede desconectarse o sufrir restricciones. Telegram será la alternativa. La compatibilidad de cada dispositivo, los recursos del VPS y los subtítulos deben verificarse con pruebas reales. Solo usar fuentes de descarga autorizadas.
+- Existing VPS and Coolify.
+- Isolated Docker Compose stack with dedicated volumes, network, and resource limits.
+- Private access through Tailscale.
+- Direct Play first; transcoding depends on server capacity.
+- Local storage initially; optional external storage based on capacity and cost.
+- No paid API dependencies or software subscriptions.
 
-## Criterio de terminado
+## Constraints
 
-Un usuario autorizado pide una película, recibe información correcta sobre su disponibilidad, y más tarde puede abrir Jellyfin y reproducirla con audio inglés y subtítulos españoles. Si algo falla, el bot informa el motivo. Sin pasos manuales entre servicios.
+Baileys is an unofficial WhatsApp integration; keep Telegram as a replaceable fallback. Playback formats vary by device. Subtitle availability depends on source material. Use authorized content sources.
+
+## Acceptance criteria
+
+An authorized household user requests a movie and later finds it in Jellyfin with the requested audio and subtitle options, or receives an accurate explanation of why it is unavailable. No manual file movement or exposed admin services.
