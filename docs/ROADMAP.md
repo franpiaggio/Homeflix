@@ -16,3 +16,11 @@
 - No public admin ports; secrets stored outside git.
 - Quality and subtitle state independently verified before ready notification.
 - Docker limits, storage limits, backups, and end-to-end smoke test pass.
+
+## Expanded acceptance tests
+- Request title through an allowed messaging account; reject unknown users.
+- Identify ambiguous movie names before downloading; avoid duplicate requests.
+- Report unavailable, poor quality, absent English audio, and Spanish subtitle status accurately.
+- Track queued/downloading/importing/subtitles/ready/failed and retry transient failures.
+- Verify library item is playable and accessible from Android, iOS and browser, with fallbacks when native app unavailable.
+- No manual file transfer between services; no unexpected public exposure.
