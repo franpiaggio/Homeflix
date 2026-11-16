@@ -1,14 +1,14 @@
-# Decisiones técnicas
+# Technical decisions
 
-- **Infraestructura:** Docker Compose en el VPS existente con Coolify; límites de CPU, RAM y almacenamiento.
-- **Mensajes:** WhatsApp con Baileys como opción experimental. Telegram como alternativa. Adaptadores independientes.
-- **Búsqueda:** TMDB, Radarr y Prowlarr; solo fuentes autorizadas.
-- **Descarga:** qBittorrent. Radarr administra la biblioteca.
-- **Subtítulos:** Bazarr; comprobar disponibilidad real antes de notificar.
-- **Reproducción:** Jellyfin. Android, iOS, TV y navegador. No depender de un proyector concreto.
-- **Calidad:** inglés, preferir 1080p, aceptar 720p y consultar por calidades inferiores.
-- **Acceso:** Tailscale; no exponer paneles de administración.
-- **Almacenamiento:** empezar con el disco existente; ampliar solo si hace falta.
-- **Costo:** ningún servicio pago adicional salvo almacenamiento opcional.
-- **Diseño:** interfaces genéricas y mínimas hasta una iteración posterior.
-- **Verificación:** no confundir configuraciones preparadas con integraciones probadas.
+- **Hosting:** Docker Compose on the existing Coolify VPS, with isolated networking, volumes, and resource limits.
+- **Messaging:** WhatsApp through an experimental Baileys adapter; Telegram as a fallback. Keep transports independent.
+- **Discovery:** TMDB, Radarr, and Prowlarr, using authorized sources.
+- **Downloads:** qBittorrent, managed through Radarr.
+- **Subtitles:** Bazarr, with verification before ready notifications.
+- **Playback:** Jellyfin across Android, iOS, TV, projector, and browser clients.
+- **Quality:** English audio, 1080p preferred, 720p accepted, confirmation below 720p.
+- **Access:** Tailscale; no public administration panels.
+- **Storage:** Local first, optional external storage when needed.
+- **Cost:** No additional subscriptions; storage may be paid.
+- **Interface:** Minimal and generic until a dedicated design iteration.
+- **Validation:** Separate configured components from tested integrations.
