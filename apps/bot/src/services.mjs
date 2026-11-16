@@ -7,8 +7,12 @@ export async function requestJson(url,{method='GET',headers={},body,timeout=1500
 }
 export class MovieCatalog {
  constructor(key){this.key=key}
- async search(query){const url='https://api.themoviedb.org/3/search/movie?query='+encodeURIComponent(query)+'&include_adult=false';
- const data=await requestJson(url,{headers:{Authorization:'Bearer '+this.key}});
+ async search(query){const url=new URL('https://api.themoviedb.org/3/search/movie');
+ url.searchParams.set('query',query);url.searchParams.set('include_adult','false');
+ const headers={};
+ if(/^[a-f\d]{32}$/i.test(this.key))url.searchParams.set('api_key',this.key);
+ else headers.Authorization='Bearer '+this.key;
+ const data=await requestJson(url,{headers});
  return (data.results||[]).slice(0,6).map(x=>({id:x.id,title:x.title,year:(x.release_date||'').slice(0,4),originalLanguage:x.original_language,overview:x.overview||''}));}
 }
 export class Radarr {

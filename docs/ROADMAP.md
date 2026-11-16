@@ -50,3 +50,17 @@ Critical findings:
 Code update: added a persistent Telegram-to-Radarr request flow with title selection, Radarr quality profile selection, subtitle preference and confirmation. The subtitle preference is recorded but not connected to Bazarr. Release selection currently uses Radarr quality profiles, **not verified live releases**. Do not claim end-to-end functionality. New tests are committed but have not been executed against a live Radarr instance.
 
 Next priorities: validate the API integration against a real Radarr version, implement actual release availability, ensure no duplicate commands, wire subtitle selection to Bazarr, add status notifications, and integrate Sonarr.
+
+## Test-readiness milestone (2026-11-16)
+
+- Added an offline terminal demo with explicitly fictional fixtures.
+- Added read-only credential/service diagnostics with redacted failures.
+- Added a complete first-test and integration setup guide in TESTING.md.
+- Added an opt-in Telegram container with persistent state and loopback-only administration override.
+- Switched Radarr/qBittorrent to one shared `/data` bind mount; STORAGE.md documents migration and remote-mount limitations.
+- Fixed TMDB authentication for both v3 API keys and bearer tokens.
+- Prevented repeated searches for movies already tracked by Radarr and blocked unconfigured root folders.
+- Validation: 15 tests passed on Node.js 24, full offline demo completed, Compose configuration validated with bot profile and local override. Diagnostic missing-credential failure verified. API tests use mocks; no live Radarr version has been validated.
+- Blocked live checks: no VPS access or credentials; Docker daemon is unavailable in the development environment. No running deployment or background AI agent was created.
+
+Next: execute TESTING.md on the target host; implement verified releases, retry-safe acquisition/update tracking, user preferences and subtitle readiness before claiming end-to-end completion.

@@ -72,11 +72,14 @@ cd apps/bot
 npm test
 ```
 
-Run the Telegram prototype:
+Try the offline conversation (fictional fixtures, no credentials):
 
 ```bash
-TELEGRAM_BOT_TOKEN='TOKEN' ALLOWED_TELEGRAM_IDS='USER_ID' npm start
+cd apps/bot
+npm run demo
 ```
+
+For real credentials, service setup, diagnostics and the Telegram container, follow [the first test guide](docs/TESTING.md).
 
 Validate the Docker Compose configuration:
 
