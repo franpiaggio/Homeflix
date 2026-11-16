@@ -1,0 +1,53 @@
+name: homeflix
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    restart: unless-stopped
+    volumes:
+      - ${MEDIA_ROOT}/config/jellyfin:/config
+      - ${MEDIA_ROOT}/library:/media:ro
+    networks: [media]
+    mem_limit: 1g
+    cpus: '1.5'
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}'}
+    volumes:
+      - ${MEDIA_ROOT}/config/radarr:/config
+      - ${MEDIA_ROOT}:/data
+    networks: [media]
+    mem_limit: 512m
+    cpus: '0.75'
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    restart: unless-stopped
+    environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}'}
+    volumes:
+      - ${MEDIA_ROOT}/config/prowlarr:/config
+    networks: [media]
+    mem_limit: 512m
+    cpus: '0.75'
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    restart: unless-stopped
+    environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}', WEBUI_PORT: '8080'}
+    volumes:
+      - ${MEDIA_ROOT}/config/qbittorrent:/config
+      - ${MEDIA_ROOT}/downloads:/data/downloads
+    networks: [media]
+    mem_limit: 1g
+    cpus: '1.0'
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    restart: unless-stopped
+    environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}'}
+    volumes:
+      - ${MEDIA_ROOT}/config/bazarr:/config
+      - ${MEDIA_ROOT}/library:/data/library
+    networks: [media]
+    mem_limit: 512m
+    cpus: '0.75'
+networks:
+  media:
+    driver: bridge
