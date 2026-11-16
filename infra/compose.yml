@@ -4,8 +4,8 @@ services:
     image: jellyfin/jellyfin:latest
     restart: unless-stopped
     volumes:
-      - ${MEDIA_ROOT}/config/jellyfin:/config
-      - ${MEDIA_ROOT}/library:/media:ro
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/jellyfin:/config
+      - ${LIBRARY_ROOT:-/srv/homeflix/library}:/media:ro
     networks: [media]
     mem_limit: 1g
     cpus: '1.5'
@@ -14,8 +14,9 @@ services:
     restart: unless-stopped
     environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}'}
     volumes:
-      - ${MEDIA_ROOT}/config/radarr:/config
-      - ${MEDIA_ROOT}:/data
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/radarr:/config
+      - ${LIBRARY_ROOT:-/srv/homeflix/library}:/data/library
+      - ${DOWNLOADS_ROOT:-/srv/homeflix/downloads}:/data/downloads
     networks: [media]
     mem_limit: 512m
     cpus: '0.75'
@@ -24,7 +25,7 @@ services:
     restart: unless-stopped
     environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}'}
     volumes:
-      - ${MEDIA_ROOT}/config/prowlarr:/config
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/prowlarr:/config
     networks: [media]
     mem_limit: 512m
     cpus: '0.75'
@@ -33,8 +34,8 @@ services:
     restart: unless-stopped
     environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}', WEBUI_PORT: '8080'}
     volumes:
-      - ${MEDIA_ROOT}/config/qbittorrent:/config
-      - ${MEDIA_ROOT}/downloads:/data/downloads
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/qbittorrent:/config
+      - ${DOWNLOADS_ROOT:-/srv/homeflix/downloads}:/data/downloads
     networks: [media]
     mem_limit: 1g
     cpus: '1.0'
@@ -43,8 +44,8 @@ services:
     restart: unless-stopped
     environment: {PUID: '${PUID}', PGID: '${PGID}', TZ: '${TZ}'}
     volumes:
-      - ${MEDIA_ROOT}/config/bazarr:/config
-      - ${MEDIA_ROOT}/library:/data/library
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/bazarr:/config
+      - ${LIBRARY_ROOT:-/srv/homeflix/library}:/data/library
     networks: [media]
     mem_limit: 512m
     cpus: '0.75'
