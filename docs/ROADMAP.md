@@ -1,26 +1,31 @@
-# Roadmap
-## Implemented
-- Repository scaffold and documentation.
-- Container compose draft for core services with private networking and resource limits.
-- Transport-neutral command handling, quality rules, tests and Telegram long-polling prototype (JavaScript ESM; TypeScript migration pending).
-## Requires operator validation and development
-- Configure authorized indexers and credentials, download client, Radarr/Bazarr integration.
-- Verify VPS capacity, storage, disk space, network limits and transcoding needs.
-- Confirm Android projector model and codec support.
-- Test Jellyfin access through Tailscale and actual end-to-end playback.
-- WhatsApp Baileys adapter (experimental; not shipped yet).
-- Wire Radarr status polling and subtitle checks for reliable notifications.
-- Validate Docker Compose on target Coolify environment.
-## Release criteria
-- Only authorized user IDs can request titles.
-- No public admin ports; secrets stored outside git.
-- Quality and subtitle state independently verified before ready notification.
-- Docker limits, storage limits, backups, and end-to-end smoke test pass.
+# Estado y próximos pasos
 
-## Expanded acceptance tests
-- Request title through an allowed messaging account; reject unknown users.
-- Identify ambiguous movie names before downloading; avoid duplicate requests.
-- Report unavailable, poor quality, absent English audio, and Spanish subtitle status accurately.
-- Track queued/downloading/importing/subtitles/ready/failed and retry transient failures.
-- Verify library item is playable and accessible from Android, iOS and browser, with fallbacks when native app unavailable.
-- No manual file transfer between services; no unexpected public exposure.
+## Hecho
+
+- Estructura inicial del repositorio y documentación.
+- Docker Compose preliminar para Jellyfin, Radarr, Prowlarr, qBittorrent y Bazarr.
+- Bot de Telegram básico con lista de usuarios permitidos.
+- Reglas de calidad y pruebas unitarias.
+
+## Pendiente
+
+1. Validar Docker Compose y recursos del VPS en Coolify.
+2. Configurar fuentes autorizadas y conectar Radarr, Prowlarr y qBittorrent.
+3. Integrar Bazarr y comprobar subtítulos en español.
+4. Conectar el bot con las búsquedas, confirmaciones y estados de descarga.
+5. Incorporar WhatsApp mediante Baileys y mantener Telegram como alternativa.
+6. Configurar Tailscale y probar Jellyfin desde Android, iOS y navegador.
+7. Probar reproducción directa, formatos incompatibles y alternativas.
+8. Verificar límites de disco, errores, reintentos y pedidos duplicados.
+
+## Pruebas necesarias para terminar
+
+- Solo los usuarios autorizados pueden pedir películas.
+- Búsqueda y calidad se informan correctamente.
+- El sistema no marca una película como lista antes de comprobar el archivo y los subtítulos.
+- La película aparece en Jellyfin sin mover archivos a mano.
+- Se reproduce en dispositivos compatibles.
+- Los demás servicios del VPS siguen aislados.
+- No hay credenciales en el repositorio ni paneles administrativos expuestos.
+
+**Estado actual:** prototipo. No hay prueba completa de extremo a extremo.
