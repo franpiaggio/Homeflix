@@ -1,17 +1,39 @@
-# Homeflix
-Personal, closed media workflow for two users. Request a movie through a messaging bot; identify via TMDB; check authorized source availability; apply English-audio and 1080p-preferred/720p-minimum rules; download via qBittorrent managed by Radarr; find Spanish subtitles with Bazarr; play via Jellyfin on Android/projector. Notify unavailable/low quality/missing subtitles. Infrastructure: existing VPS with Coolify, isolated Docker Compose. Optional external storage only if needed. No paid APIs or subscriptions. Direct Play prioritized. Access to Jellyfin and administration over private network (Tailscale); verify projector compatibility. Source licensing and subtitle availability cannot be assumed.
+# Proyecto
 
-## Boundaries
-Bot never directly searches arbitrary torrent websites; Radarr/Prowlarr configured by operator for authorized sources. No AI dependency. Minimal interfaces only. WhatsApp Baileys is unofficial and may break or trigger account restrictions; adapter replaceable with Telegram. A dedicated WhatsApp number is recommended. Avoid exposing bot/admin endpoints.
+Homeflix permite pedir películas por mensaje y reproducirlas después desde dispositivos personales.
 
-## Product experience and portability
-Homeflix must be device-agnostic: Android phones, iOS phones/tablets, Android TV, compatible projectors and web browsers are first-class playback targets. Do not hardcode projector-specific assumptions. Jellyfin is the initial playback backend, with client fallback (native app, browser, compatible external player) if a device or codec blocks playback. Streaming compatibility and remote access must be tested per device.
+## Flujo
 
-## Four independent layers
-1. Request: replaceable WhatsApp/Telegram adapters, authentication and notifications.
-2. Discovery: metadata identification, authorized indexer search, source scoring and user confirmation when necessary.
-3. Acquisition: download orchestration, subtitle acquisition, library import, readiness verification and job-state tracking.
-4. Playback: Jellyfin library and device-agnostic access, optimized for Direct Play with transcoding fallback when hardware permits.
+1. **Mensajes:** WhatsApp o Telegram recibe el título y responde con el estado.
+2. **Búsqueda:** TMDB identifica la película; Radarr y Prowlarr consultan fuentes configuradas y autorizadas.
+3. **Descarga:** qBittorrent descarga; Bazarr busca subtítulos en español; el sistema comprueba el archivo antes de marcarlo como listo.
+4. **Reproducción:** Jellyfin presenta la biblioteca en Android, iOS, Android TV, proyectores compatibles o navegador.
 
-## Acceptance criteria
-A household member requests a title, receives an accurate availability/quality decision, and can later open a supported device to find the correctly identified playable movie with English audio and Spanish subtitles, or a clear notification explaining why it is not ready. No manual file moving. No false ready notifications. Handle failures/retries/idempotency and limited VPS resources. Use authorized sources only.
+Las capas deben poder reemplazarse sin rehacer las demás.
+
+## Reglas
+
+- Preferir audio original en inglés.
+- Priorizar 1080p; aceptar 720p; consultar antes de descargar calidad inferior.
+- Avisar cuando no se encuentre el título o no se pueda verificar idioma, calidad o subtítulos.
+- No prometer subtítulos que todavía no se encontraron.
+- Evitar pedidos duplicados y permitir reintentos.
+- Estados: solicitado, buscando, pendiente de confirmación, descargando, preparando, listo y error.
+- El usuario no debe mover archivos manualmente.
+
+## Infraestructura
+
+- VPS existente con Coolify.
+- Un stack Docker Compose con red, volúmenes y límites de recursos propios.
+- Jellyfin con reproducción directa cuando el dispositivo soporte el formato.
+- Tailscale para acceso privado. Sin paneles administrativos públicos.
+- Almacenamiento local al principio; evaluar uno externo según espacio y costo.
+- Sin APIs ni suscripciones pagas.
+
+## Restricciones
+
+WhatsApp mediante Baileys no es oficial: puede desconectarse o sufrir restricciones. Telegram será la alternativa. La compatibilidad de cada dispositivo, los recursos del VPS y los subtítulos deben verificarse con pruebas reales. Solo usar fuentes de descarga autorizadas.
+
+## Criterio de terminado
+
+Un usuario autorizado pide una película, recibe información correcta sobre su disponibilidad, y más tarde puede abrir Jellyfin y reproducirla con audio inglés y subtítulos españoles. Si algo falla, el bot informa el motivo. Sin pasos manuales entre servicios.
