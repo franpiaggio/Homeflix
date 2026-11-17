@@ -64,3 +64,11 @@ Next priorities: validate the API integration against a real Radarr version, imp
 - Blocked live checks: no VPS access or credentials; Docker daemon is unavailable in the development environment. No running deployment or background AI agent was created.
 
 Next: execute TESTING.md on the target host; implement verified releases, retry-safe acquisition/update tracking, user preferences and subtitle readiness before claiming end-to-end completion.
+
+## Local test environment (2026-11-17)
+
+- Media services started locally on macOS (Docker Desktop 29.2.0) with the loopback override; all five admin ports respond.
+- Radarr 7.0.3.10918: root folder `/data/library/movies` added; `doctor` passes Radarr API, quality profiles and root folder.
+- 15 unit tests pass on Node.js 22.
+- Not yet verified: Telegram, TMDB, Prowlarr indexers, qBittorrent connection, Bazarr, Jellyfin library and playback.
+- Added `docker-compose.coolify.yml` (single-file stack, loopback-only admin ports, absolute host paths) and a bot `Dockerfile` for a Coolify Docker Compose resource. Validated with `docker compose config` and a local image build; not yet deployed on the VPS.
