@@ -1,6 +1,6 @@
 # Single-file stack for a Coolify "Docker Compose" resource.
 # Do not assign domains to any service: admin panels stay on 127.0.0.1 (SSH tunnel or Tailscale).
-# Host paths are absolute so data does not live inside Coolify's application directory.
+# Host paths are fixed absolute paths (Coolify cannot parse ${VAR:-default} inside volume specs).
 name: homeflix
 services:
   jellyfin:
@@ -8,8 +8,8 @@ services:
     restart: unless-stopped
     ports: ['127.0.0.1:8096:8096']
     volumes:
-      - ${CONFIG_ROOT:-/srv/homeflix/config}/jellyfin:/config
-      - ${DATA_ROOT:-/srv/homeflix/data}/library:/media:ro
+      - /srv/homeflix/config/jellyfin:/config
+      - /srv/homeflix/data/library:/media:ro
     mem_limit: 1g
     cpus: '1.5'
   radarr:
@@ -23,8 +23,8 @@ services:
       # Fixed API key shared with the bot (Servarr reads RADARR__SECTION__KEY overrides).
       RADARR__AUTH__APIKEY: '${RADARR_API_KEY}'
     volumes:
-      - ${CONFIG_ROOT:-/srv/homeflix/config}/radarr:/config
-      - ${DATA_ROOT:-/srv/homeflix/data}:/data
+      - /srv/homeflix/config/radarr:/config
+      - /srv/homeflix/data:/data
     mem_limit: 512m
     cpus: '0.75'
   prowlarr:
@@ -36,7 +36,7 @@ services:
       PGID: '${PGID:-1000}'
       TZ: '${TZ:-America/Argentina/Buenos_Aires}'
     volumes:
-      - ${CONFIG_ROOT:-/srv/homeflix/config}/prowlarr:/config
+      - /srv/homeflix/config/prowlarr:/config
     mem_limit: 512m
     cpus: '0.75'
   qbittorrent:
@@ -49,8 +49,8 @@ services:
       TZ: '${TZ:-America/Argentina/Buenos_Aires}'
       WEBUI_PORT: '8080'
     volumes:
-      - ${CONFIG_ROOT:-/srv/homeflix/config}/qbittorrent:/config
-      - ${DATA_ROOT:-/srv/homeflix/data}:/data
+      - /srv/homeflix/config/qbittorrent:/config
+      - /srv/homeflix/data:/data
     mem_limit: 1g
     cpus: '1.0'
   bazarr:
@@ -62,8 +62,8 @@ services:
       PGID: '${PGID:-1000}'
       TZ: '${TZ:-America/Argentina/Buenos_Aires}'
     volumes:
-      - ${CONFIG_ROOT:-/srv/homeflix/config}/bazarr:/config
-      - ${DATA_ROOT:-/srv/homeflix/data}/library:/data/library
+      - /srv/homeflix/config/bazarr:/config
+      - /srv/homeflix/data/library:/data/library
     mem_limit: 512m
     cpus: '0.75'
   bot:
@@ -80,7 +80,7 @@ services:
       RADARR_ROOT_FOLDER: /data/library/movies
       STATE_FILE: /state/state.json
     volumes:
-      - ${CONFIG_ROOT:-/srv/homeflix/config}/bot:/state
+      - /srv/homeflix/config/bot:/state
     depends_on: [radarr]
     mem_limit: 256m
     cpus: '0.5'
