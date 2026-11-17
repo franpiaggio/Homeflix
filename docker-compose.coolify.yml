@@ -1,0 +1,84 @@
+# Single-file stack for a Coolify "Docker Compose" resource.
+# Do not assign domains to any service: admin panels stay on 127.0.0.1 (SSH tunnel or Tailscale).
+# Host paths are absolute so data does not live inside Coolify's application directory.
+name: homeflix
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    restart: unless-stopped
+    ports: ['127.0.0.1:8096:8096']
+    volumes:
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/jellyfin:/config
+      - ${DATA_ROOT:-/srv/homeflix/data}/library:/media:ro
+    mem_limit: 1g
+    cpus: '1.5'
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    ports: ['127.0.0.1:7878:7878']
+    environment:
+      PUID: '${PUID:-1000}'
+      PGID: '${PGID:-1000}'
+      TZ: '${TZ:-America/Argentina/Buenos_Aires}'
+    volumes:
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/radarr:/config
+      - ${DATA_ROOT:-/srv/homeflix/data}:/data
+    mem_limit: 512m
+    cpus: '0.75'
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    restart: unless-stopped
+    ports: ['127.0.0.1:9696:9696']
+    environment:
+      PUID: '${PUID:-1000}'
+      PGID: '${PGID:-1000}'
+      TZ: '${TZ:-America/Argentina/Buenos_Aires}'
+    volumes:
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/prowlarr:/config
+    mem_limit: 512m
+    cpus: '0.75'
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    restart: unless-stopped
+    ports: ['127.0.0.1:8080:8080']
+    environment:
+      PUID: '${PUID:-1000}'
+      PGID: '${PGID:-1000}'
+      TZ: '${TZ:-America/Argentina/Buenos_Aires}'
+      WEBUI_PORT: '8080'
+    volumes:
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/qbittorrent:/config
+      - ${DATA_ROOT:-/srv/homeflix/data}:/data
+    mem_limit: 1g
+    cpus: '1.0'
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    restart: unless-stopped
+    ports: ['127.0.0.1:6767:6767']
+    environment:
+      PUID: '${PUID:-1000}'
+      PGID: '${PGID:-1000}'
+      TZ: '${TZ:-America/Argentina/Buenos_Aires}'
+    volumes:
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/bazarr:/config
+      - ${DATA_ROOT:-/srv/homeflix/data}/library:/data/library
+    mem_limit: 512m
+    cpus: '0.75'
+  bot:
+    build:
+      context: ./apps/bot
+    restart: unless-stopped
+    user: '${PUID:-1000}:${PGID:-1000}'
+    environment:
+      TELEGRAM_BOT_TOKEN: '${TELEGRAM_BOT_TOKEN}'
+      ALLOWED_TELEGRAM_IDS: '${ALLOWED_TELEGRAM_IDS}'
+      TMDB_API_KEY: '${TMDB_API_KEY}'
+      RADARR_URL: http://radarr:7878
+      RADARR_API_KEY: '${RADARR_API_KEY}'
+      RADARR_ROOT_FOLDER: /data/library/movies
+      STATE_FILE: /state/state.json
+    volumes:
+      - ${CONFIG_ROOT:-/srv/homeflix/config}/bot:/state
+    depends_on: [radarr]
+    mem_limit: 256m
+    cpus: '0.5'

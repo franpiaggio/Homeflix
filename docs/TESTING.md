@@ -32,6 +32,8 @@ Create these directories on the Docker host and give the configured UID/GID writ
 - `${DATA_ROOT}/downloads/complete`
 - `${DATA_ROOT}/library/movies`
 
+For a local test on macOS with Docker Desktop, use `PUID` from `id -u`, `PGID` from `id -g`, and `CONFIG_ROOT`/`DATA_ROOT` under your home directory (for example `~/localwork/homeflix-dev/config` and `.../data`); `/srv` is not writable there. Radarr's API key is in `${CONFIG_ROOT}/radarr/config.xml`.
+
 Check available space with `df -h`. Do not launch on an unmounted external disk. Run on local storage for the first test.
 
 ```bash
