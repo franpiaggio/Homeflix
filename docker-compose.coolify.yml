@@ -20,6 +20,8 @@ services:
       PUID: '${PUID:-1000}'
       PGID: '${PGID:-1000}'
       TZ: '${TZ:-America/Argentina/Buenos_Aires}'
+      # Fixed API key shared with the bot (Servarr reads RADARR__SECTION__KEY overrides).
+      RADARR__AUTH__APIKEY: '${RADARR_API_KEY}'
     volumes:
       - ${CONFIG_ROOT:-/srv/homeflix/config}/radarr:/config
       - ${DATA_ROOT:-/srv/homeflix/data}:/data
